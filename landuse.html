@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planetary Health: Land Use Monitoring</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #795548; /* Brown */
+            --secondary-color: #A1887F; /* Light Brown */
+            --accent-color: #5D4037; /* Dark Brown */
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        .nav-links li {
+            margin-left: 2rem;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+        .hero {
+            background: url('https://images.unsplash.com/photo-1506905925343-8d749d62a77b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            color: white;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            text-align: center;
+            padding-top: 3rem;
+        }
+        .section-description {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: #666;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 2rem auto;
+            position: relative;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .data-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            border-top: 4px solid var(--primary-color);
+        }
+        .data-card:hover {
+            transform: translateY(-10px);
+        }
+        .data-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .data-card h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-globe-africa" style="margin-right: 10px;"></i>
+                    Land Use Monitor
+                </div>
+                <ul class="nav-links">
+                    <li><a href="planetoryHealth.html">Home</a></li>
+                    <li><a href="#types">Land Use Types</a></li>
+                    <li><a href="#change">Land Use Change</a></li>
+                    <li><a href="#impacts">Environmental Impacts</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Planetary Health: Land Use</h1>
+            <p>Monitoring global land use patterns for a healthy planet and sustainable development.</p>
+            <a href="#types" class="btn">Explore Land Data</a>
+        </div>
+    </section>
+
+    <section id="types">
+        <div class="container">
+            <h2 class="section-title">Global Land Use Types</h2>
+            <p class="section-description">Tracking the distribution of different land use categories.</p>
+
+            <div class="chart-container">
+                <canvas id="typesChart"></canvas>
+            </div>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <i class="fas fa-tree"></i>
+                    <h3>Forest Land</h3>
+                    <p>Forests play a crucial role in carbon sequestration and biodiversity conservation.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-tractor"></i>
+                    <h3>Agricultural Land</h3>
+                    <p>Agricultural land is essential for food production but can also contribute to deforestation and soil degradation.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-city"></i>
+                    <h3>Urban Land</h3>
+                    <p>Urban expansion can lead to habitat loss and increased pollution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="change" style="background-color: #f5f5f5; padding: 5rem 0;">
+        <div class="container">
+            <h2 class="section-title">Global Land Use Change</h2>
+            <p class="section-description">Monitoring changes in land use patterns over time.</p>
+
+            <div class="chart-container">
+                <canvas id="changeChart"></canvas>
+            </div>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Deforestation Rates</h3>
+                    <p>Deforestation is a major driver of climate change and biodiversity loss.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-expand"></i>
+                    <h3>Urban Sprawl</h3>
+                    <p>Urban sprawl can lead to increased transportation costs and social segregation.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Land Degradation</h3>
+                    <p>Land degradation reduces soil fertility and agricultural productivity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="impacts" style="padding: 5rem 0;">
+        <div class="container">
+            <h2 class="section-title">Environmental Impacts of Land Use</h2>
+            <p class="section-description">Understanding the consequences of land use practices on the environment.</p>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <i class="fas fa-cloud-rain"></i>
+                    <h3>Climate Change</h3>
+                    <p>Land use change contributes to greenhouse gas emissions and alters regional climate patterns.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-paw"></i>
+                    <h3>Biodiversity Loss</h3>
+                    <p>Habitat loss due to land use change is a major threat to biodiversity.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-tint"></i>
+                    <h3>Water Quality</h3>
+                    <p>Land use practices can affect water quality through soil erosion and pollution runoff.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p style="text-align: center;">&copy; 2023 Planetary Health: Land Use Monitoring. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Land Use Types Chart
+        const typesCtx = document.getElementById('typesChart').getContext('2d');
+        const typesChart = new Chart(typesCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Forest Land', 'Agricultural Land', 'Grassland', 'Urban Land', 'Other'],
+                datasets: [{
+                    label: 'Percentage of Land Use',
+                    data: [31, 37, 26, 3, 3],
+                    backgroundColor: [
+                        'rgba(34, 139, 34, 0.7)',  // Forest Green
+                        'rgba(210, 180, 140, 0.7)', // Tan
+                        'rgba(144, 238, 144, 0.7)', // Light Green
+                        'rgba(128, 128, 128, 0.7)', // Gray
+                        'rgba(169, 169, 169, 0.7)'  // Dark Gray
+                    ],
+                    borderColor: [
+                        'rgba(34, 139, 34, 1)',
+                        'rgba(210, 180, 140, 1)',
+                        'rgba(144, 238, 144, 1)',
+                        'rgba(128, 128, 128, 1)',
+                        'rgba(169, 169, 169, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Global Land Use Types',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Land Use Change Chart
+        const changeCtx = document.getElementById('changeChart').getContext('2d');
+        const changeChart = new Chart(changeCtx, {
+            type: 'line',
+            data: {
+                labels: ['2000', '2005', '2010', '2015', '2020'],
+                datasets: [{
+                    label: 'Global Forest Area Change (million hectares)',
+                    data: [4060, 4055, 4050, 4045, 4040],
+                    backgroundColor: 'rgba(139, 69, 19, 0.2)', // Saddle Brown
+                    borderColor: 'rgba(139, 69, 19, 1)',
+                    borderWidth: 2,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Forest Area (million hectares)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Global Forest Area Change Over Time',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planetary Health: Air Quality Monitoring</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #E91E63; /* Pink */
+            --secondary-color: #F06292; /* Light Pink */
+            --accent-color: #C2185B; /* Dark Pink */
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        .nav-links li {
+            margin-left: 2rem;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+        .hero {
+            background: url('https://images.unsplash.com/photo-1501594907352-045c85810919?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            color: white;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            text-align: center;
+            padding-top: 3rem;
+        }
+        .section-description {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: #666;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 2rem auto;
+            position: relative;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .data-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            border-top: 4px solid var(--primary-color);
+        }
+        .data-card:hover {
+            transform: translateY(-10px);
+        }
+        .data-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .data-card h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 3rem;
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-cloud" style="margin-right: 10px;"></i>
+                    Air Quality Monitor
+                </div>
+                <ul class="nav-links">
+                    <li><a href="planetoryHealth.html">Home</a></li>
+                    <li><a href="#levels">Air Quality Levels</a></li>
+                    <li><a href="#sources">Pollution Sources</a></li>
+                    <li><a href="#health">Health Impacts</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Planetary Health: Air Quality</h1>
+            <p>Monitoring global air quality for a healthy planet and thriving communities.</p>
+            <a href="#levels" class="btn">Explore Air Data</a>
+        </div>
+    </section>
+
+    <section id="levels">
+        <div class="container">
+            <h2 class="section-title">Global Air Quality Levels</h2>
+            <p class="section-description">Tracking key air pollutants and their concentrations.</p>
+
+            <div class="chart-container">
+                <canvas id="levelsChart"></canvas>
+            </div>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <i class="fas fa-smog"></i>
+                    <h3>PM2.5 Concentration</h3>
+                    <p>Fine particulate matter (PM2.5) poses a significant risk to respiratory health.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-wind"></i>
+                    <h3>Ozone Levels</h3>
+                    <p>Ground-level ozone can trigger asthma and other respiratory problems.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-cloud"></i>
+                    <h3>Nitrogen Dioxide (NO2)</h3>
+                    <p>NO2 is a major component of smog and contributes to acid rain.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sources" style="background-color: #f5f5f5; padding: 5rem 0;">
+        <div class="container">
+            <h2 class="section-title">Sources of Air Pollution</h2>
+            <p class="section-description">Identifying the primary contributors to air pollution.</p>
+
+            <div class="chart-container">
+                <canvas id="sourcesChart"></canvas>
+            </div>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <i class="fas fa-industry"></i>
+                    <h3>Industrial Emissions</h3>
+                    <p>Factories and power plants release harmful pollutants into the atmosphere.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-car"></i>
+                    <h3>Vehicle Exhaust</h3>
+                    <p>Cars, trucks, and buses are major sources of air pollution in urban areas.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-fire"></i>
+                    <h3>Agricultural Burning</h3>
+                    <p>Burning crop residue releases large amounts of smoke and particulate matter.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="health" style="padding: 5rem 0;">
+        <div class="container">
+            <h2 class="section-title">Health Impacts of Air Pollution</h2>
+            <p class="section-description">Understanding the effects of air pollution on human health.</p>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <i class="fas fa-lungs"></i>
+                    <h3>Respiratory Diseases</h3>
+                    <p>Air pollution exacerbates asthma, bronchitis, and other respiratory illnesses.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-heart"></i>
+                    <h3>Cardiovascular Diseases</h3>
+                    <p>Exposure to air pollution increases the risk of heart attacks and strokes.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>Neurological Effects</h3>
+                    <p>Air pollution has been linked to cognitive decline and neurodevelopmental problems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p style="text-align: center;">&copy; 2023 Planetary Health: Air Quality Monitoring. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Air Quality Levels Chart
+        const levelsCtx = document.getElementById('levelsChart').getContext('2d');
+        const levelsChart = new Chart(levelsCtx, {
+            type: 'line',
+            data: {
+                labels: ['2018', '2019', '2020', '2021', '2022'],
+                datasets: [{
+                    label: 'Global Average PM2.5 (µg/m³)',
+                    data: [35, 34, 32, 33, 31],
+                    backgroundColor: 'rgba(233, 30, 99, 0.2)',
+                    borderColor: 'rgba(233, 30, 99, 1)',
+                    borderWidth: 2,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'PM2.5 (µg/m³)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Global PM2.5 Levels Over Time',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Sources of Air Pollution Chart
+        const sourcesCtx = document.getElementById('sourcesChart').getContext('2d');
+        const sourcesChart = new Chart(sourcesCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Industry', 'Transportation', 'Residential', 'Agriculture', 'Other'],
+                datasets: [{
+                    label: 'Percentage of Pollution',
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Sources of Air Pollution',
+                        font: {
+                            size: 18
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

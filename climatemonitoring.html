@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Monitoring - Planetary Health System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #2c7873;
+            --secondary-color: #6fb98f;
+            --accent-color: #004445;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDF8fGNsYWltYXRlJTIwY2hhbGxlbmdlJTIwY29udHJvbHxlbnwwfHx8fDE2MjY0MjY0Mjg&ixlib=rb-1.2.1&q=80&w=1080') no-repeat center center/cover;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            color: white;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Climate Data Section */
+        .climate-data {
+            padding: 5rem 0;
+            background-color: white;
+            text-align: center;
+        }
+
+        .section-title {
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+        }
+
+        .section-description {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 2rem auto;
+            position: relative;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .data-card {
+            background-color: var(--light-color);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .data-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .data-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .data-card h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        /* Impact Section */
+        .impact {
+            padding: 5rem 0;
+            background-color: var(--light-color);
+        }
+
+        .impact-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .impact-item {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .impact-item h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Solutions Section */
+        .solutions {
+            padding: 5rem 0;
+            background-color: white;
+        }
+
+        .solution-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .solution-card {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .solution-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .solution-img {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .solution-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .solution-card:hover .solution-img img {
+            transform: scale(1.1);
+        }
+
+        .solution-content {
+            padding: 1.5rem;
+        }
+
+        .solution-content h3 {
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--secondary-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            background-color: #333;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-globe-europe" style="margin-right: 10px;"></i>
+                    Planetary Health
+                </div>
+                <ul class="nav-links">
+                    <li><a href="planetoryHealth.html">Home</a></li>
+                    <li><a href="#data">Climate Data</a></li>
+                    <li><a href="#impact">Impacts</a></li>
+                    <li><a href="#solutions">Solutions</a></li>
+                    <li><a href="planetoryHealth.html">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Global Climate Monitoring System</h1>
+            <p>Tracking environmental changes to protect our planet's future</p>
+            <a href="#data" class="btn">View Climate Data</a>
+        </div>
+    </section>
+
+    <section class="climate-data" id="data">
+        <div class="container">
+            <h2 class="section-title">Climate Change Indicators</h2>
+            <p class="section-description">Our planet is showing clear signs of climate change. These key indicators help us understand the scale and pace of environmental transformation.</p>
+            
+            <div class="chart-container">
+                <canvas id="temperatureChart"></canvas>
+            </div>
+            
+            <div class="data-grid">
+                <div class="data-card">
+                    <i class="fas fa-temperature-high"></i>
+                    <h3>Global Temperature</h3>
+                    <p>The Earth's average surface temperature has risen about 1.18°C since the late 19th century, with the last decade being the warmest on record.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-water"></i>
+                    <h3>Sea Level Rise</h3>
+                    <p>Global sea level rose about 20 cm (8 inches) in the last century, with the rate in the last two decades nearly doubling.</p>
+                </div>
+                <div class="data-card">
+                    <i class="fas fa-snowflake"></i>
+                    <h3>Arctic Ice</h3>
+                    <p>The Arctic's minimum summer ice cover is shrinking by 13.1% per decade relative to the 1981-2010 average.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="impact" id="impact">
+        <div class="container">
+            <h2 class="section-title">Climate Change Impacts</h2>
+            <p class="section-description">The effects of climate change are already being felt worldwide, with more severe consequences projected if we don't take action.</p>
+            
+            <div class="impact-items">
+                <div class="impact-item">
+                    <h3>Extreme Weather</h3>
+                    <p>Increased frequency and intensity of heatwaves, hurricanes, wildfires, and heavy precipitation events.</p>
+                </div>
+                <div class="impact-item">
+                    <h3>Ecosystem Disruption</h3>
+                    <p>Shifting habitats, species extinction, and disruption of natural cycles affecting biodiversity.</p>
+                </div>
+                <div class="impact-item">
+                    <h3>Food Security</h3>
+                    <p>Changes in precipitation patterns and increased droughts affecting agricultural production.</p>
+                </div>
+                <div class="impact-item">
+                    <h3>Human Health</h3>
+                    <p>Increased heat-related illnesses, spread of diseases, and health impacts from air pollution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="solutions" id="solutions">
+        <div class="container">
+            <h2 class="section-title">Climate Solutions</h2>
+            <p class="section-description">While the challenge is significant, there are many solutions available to mitigate climate change and adapt to its impacts.</p>
+            
+            <div class="solution-cards">
+                <div class="solution-card">
+                    <div class="solution-img">
+                        <img src="https://images.app.goo.gl/x1CZGDTeDPcxLhcSA" alt="Renewable Energy">
+                    </div>
+                    <div class="solution-content">
+                        <h3>Renewable Energy</h3>
+                        <p>Transitioning to solar, wind, and other renewable energy sources to reduce greenhouse gas emissions.</p>
+                    </div>
+                </div>
+                <div class="solution-card">
+                    <div class="solution-img">
+                        <img src="https://images.app.goo.gl/XQg4qR4ar3RoW3D66" alt="Sustainable Transport">
+                    </div>
+                    <div class="solution-content">
+                        <h3>Sustainable Transport</h3>
+                        <p>Electric vehicles, public transit, and active transportation to reduce emissions from the transport sector.</p>
+                    </div>
+                </div>
+                <div class="solution-card">
+                    <div class="solution-img">
+                        <img src="https://images.app.goo.gl/8cQkBRdPtgu6rStD7" alt="Forest Conservation">
+                    </div>
+                    <div class="solution-content">
+                        <h3>Forest Conservation</h3>
+                        <p>Protecting and restoring forests to act as carbon sinks and preserve biodiversity.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Temperature Chart Data
+        const ctx = document.getElementById('temperatureChart').getContext('2d');
+        const temperatureChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1880', '1900', '1920', '1940', '1960', '1980', '2000', '2020'],
+                datasets: [{
+                    label: 'Global Temperature Anomaly (°C)',
+                    data: [-0.2, -0.1, -0.1, 0.1, 0.0, 0.2, 0.5, 1.0],
+                    backgroundColor: 'rgba(111, 185, 143, 0.2)',
+                    borderColor: 'rgba(44, 120, 115, 1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Temperature Anomaly (°C)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y}°C`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
